@@ -24,12 +24,13 @@ namespace CounterAction.Formats
 			using var writer = new BinaryWriter(File.OpenWrite($"{path}.wav"));
 
 			var sampleAmount = (int) this.Reader.BaseStream.Length / SoundResource.SampleBytes;
+			var dataLength = (int) this.Reader.BaseStream.Length;
 
 			writer.Write(Encoding.ASCII.GetBytes("RIFF"));
-			writer.Write(0);
+			writer.Write(36 + dataLength);
 			writer.Write(Encoding.ASCII.GetBytes("WAVE"));
 			writer.Write(Encoding.ASCII.GetBytes("fmt "));
-			writer.Write(18 + sampleAmount * SoundResource.SampleBytes);
+			writer.Write(16);
 			writer.Write((short) 1);
 			writer.Write((short) this.channels);
 			writer.Write(SoundResource.SampleRate);
@@ -38,7 +39,8 @@ namespace CounterAction.Formats
 			writer.Write((short) (8 * SoundResource.SampleBytes));
 			writer.Write((short) (sampleAmount * SoundResource.SampleBytes));
 			writer.Write("data");
-			writer.Write(this.Reader.ReadBytes((int) this.Reader.BaseStream.Length));
+			writer.Write(dataLength);
+			writer.Write(this.Reader.ReadBytes(dataLength));
 		}
 	}
 }
